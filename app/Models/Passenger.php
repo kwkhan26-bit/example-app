@@ -17,13 +17,17 @@ class Passenger extends Model
         'password',
         'dob',
         'passport_expiry_date',
-        'flight_id',
     ];
 
     protected $hidden = ['password'];
 
-    public function flight()
-    {
-        return $this->belongsTo(Flight::class);
-    }
+    public function setPasswordAttribute($value)
+{
+    $this->attributes['password'] = bcrypt($value);
+}
+
+    public function flights()
+{
+    return $this->belongsToMany(Flight::class);
+}
 }

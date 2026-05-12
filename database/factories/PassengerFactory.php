@@ -20,10 +20,9 @@ public function definition(): array
         'first_name' => $this->faker->firstName(),
         'last_name' => $this->faker->lastName(),
         'email' => $this->faker->unique()->safeEmail(),
-        'password' => bcrypt('password'),
+        'password' => 'password',
         'dob' => $this->faker->date(),
         'passport_expiry_date' => $this->faker->date(),
-        'flight_id' => \App\Models\Flight::inRandomOrder()->first()->id,
     ];
 }
 }
