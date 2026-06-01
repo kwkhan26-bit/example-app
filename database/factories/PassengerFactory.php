@@ -21,7 +21,7 @@ public function definition(): array
         'last_name' => $this->faker->lastName(),
         'email' => $this->faker->unique()->safeEmail(),
         'password' => 'password',
-        'dob' => $this->faker->date(),
+        'date_of_birth' => $this->faker->date(),
         'passport_expiry_date' => $this->faker->date(),
     ];
 }

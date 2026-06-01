@@ -10,9 +10,16 @@ class PassengerSeeder extends Seeder
 {
     public function run(): void
     {
-        Passenger::factory()->count(1000)->create()->each(function ($passenger) {
-            $flights = Flight::inRandomOrder()->take(rand(1, 3))->pluck('id');
-            $passenger->flights()->attach($flights);
+        // Create all 1000 passengers at once
+        Passenger::factory()->count(1000)->create();
+
+        // Get all flight IDs once
+        $flightIds = Flight::pluck('id')->toArray();
+
+        // Attach flights to each passenger in bulk
+        Passenger::all()->each(function ($passenger) use ($flightIds) {
+            $randomFlights = array_rand(array_flip($flightIds), rand(1, 3));
+            $passenger->flights()->attach((array) $randomFlights);
         });
     }
 }
