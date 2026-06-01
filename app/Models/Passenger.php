@@ -10,7 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class Passenger extends Model
 {
-    use HasFactory, SoftDeletes, HasApiTokens;
+    use HasFactory, SoftDeletes, HasApiTokens, HasRoles;
 
     protected $fillable = [
         'first_name',

@@ -204,6 +204,6 @@ return [
         'store' => 'default',
     ],
 
-    'guard_name' => 'sanctum',   
+    'guard_name' => 'web',  
 ];
 
