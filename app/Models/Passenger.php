@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
 class Passenger extends Model
 {
-    use HasFactory, SoftDeletes, HasApiTokens, HasRoles;
+    use HasFactory, SoftDeletes, HasApiTokens;
 
     protected $fillable = [
         'first_name',

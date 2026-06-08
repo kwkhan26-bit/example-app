@@ -11,14 +11,14 @@ class PassengerController extends Controller
 {
     // GET /api/passengers
     public function index(Request $request)
-    {
-        $passengers = QueryBuilder::for(Passenger::class)
-            ->allowedFilters(['first_name', 'last_name', 'email', AllowedFilter::exact('flight_id')])
-            ->allowedSorts(['first_name', 'last_name', 'email', 'date_of_birth'])
-            ->paginate($request->get('per_page', 15));
+{
+    $passengers = QueryBuilder::for(Passenger::class)
+        ->allowedFilters(['first_name', 'last_name', 'email'])
+        ->allowedSorts(['first_name', 'last_name', 'email', 'date_of_birth'])
+        ->paginate($request->get('per_page', 15));
 
-        return response()->json($passengers);
-    }
+    return response()->json($passengers);
+}
 
     // GET /api/passengers/{id}
     public function show(Passenger $passenger)
@@ -33,7 +33,7 @@ class PassengerController extends Controller
             'first_name'           => 'required|string',
             'last_name'            => 'required|string',
             'email'                => 'required|email|unique:passengers',
-            'password'             => 'required|string|min:6',
+            'password' => 'required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
             'date_of_birth'        => 'required|date',
             'passport_expiry_date' => 'required|date',
         ]);

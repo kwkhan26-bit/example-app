@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Passenger;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,13 +15,13 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $passenger = Passenger::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if (!$passenger || !Hash::check($request->password, $passenger->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $token = $passenger->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json(['token' => $token]);
     }
