@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
 
 class Passenger extends Model
 {
-    use HasFactory, SoftDeletes, HasApiTokens;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'first_name',
@@ -30,5 +29,12 @@ class Passenger extends Model
     public function flights()
     {
         return $this->belongsToMany(Flight::class);
+    }
+
+    public function scopeWhereHasFlight($query, $flightId)
+    {
+        return $query->whereHas('flights', function ($q) use ($flightId) {
+            $q->where('flights.id', $flightId);
+        });
     }
 }

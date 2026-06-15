@@ -1,30 +1,38 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use App\Http\Controllers\PassengerController;
 use App\Http\Controllers\FlightController;
 use App\Http\Controllers\AuthController;
 
-// Public routes (no login needed)
-Route::post('/login', [AuthController::class, 'login']);
+// Rate limiter for login
+RateLimiter::for('login', function (Request $request) {
+    return Limit::perMinute(5)->by($request->ip());
+});
 
-// Protected routes (need token)
+// Public routes
+Route::middleware('throttle:login')->post('/login', [AuthController::class, 'login']);
+
+// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Flights (any logged in user can view)
-    Route::get('/flights', [FlightController::class, 'index']);
+    // View only for all logged in users
+    Route::apiResource('flights', FlightController::class)->only(['index', 'show']);
+    Route::apiResource('passengers', PassengerController::class)->only(['index', 'show']);
 
-    // Passengers - anyone logged in can VIEW
-    Route::get('/passengers',              [PassengerController::class, 'index']);
-    Route::get('/passengers/{passenger}',  [PassengerController::class, 'show']);
+    // Assign/unassign passenger to flight
+    Route::post('/flights/{flight}/assign', [FlightController::class, 'assign']);
+    Route::delete('/flights/{flight}/unassign', [FlightController::class, 'unassign']);
 
-    // Passengers - only ADMIN can create, update, delete
+    // Admin only
     Route::middleware('role:admin')->group(function () {
-        Route::post('/passengers',                [PassengerController::class, 'store']);
-        Route::put('/passengers/{passenger}',     [PassengerController::class, 'update']);
-        Route::delete('/passengers/{passenger}',  [PassengerController::class, 'destroy']);
+        Route::apiResource('flights', FlightController::class)->except(['index', 'show']);
+        Route::apiResource('passengers', PassengerController::class)->except(['index', 'show']);
     });
 
 });
