@@ -7,16 +7,23 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Illuminate\Support\Facades\Cache; // Added Cache Facade
 
 class PassengerController extends Controller
 {
     // GET /api/passengers
     public function index(Request $request)
     {
-        $passengers = QueryBuilder::for(Passenger::class)
-            ->allowedFilters(['first_name', 'last_name', 'email', AllowedFilter::scope('flight', 'whereHasFlight')])
-            ->allowedSorts(['first_name', 'last_name', 'email', 'date_of_birth'])
-            ->paginate($request->get('per_page', 15));
+        // Create a unique cache key based on the requested URL (handles pagination and filters)
+        $cacheKey = 'passengers_' . md5($request->fullUrl());
+
+        // Cache the query results for 60 minutes (3600 seconds)
+        $passengers = Cache::remember($cacheKey, 3600, function () use ($request) {
+            return QueryBuilder::for(Passenger::class)
+                ->allowedFilters(['first_name', 'last_name', 'email', AllowedFilter::scope('flight', 'whereHasFlight')])
+                ->allowedSorts(['first_name', 'last_name', 'email', 'date_of_birth'])
+                ->paginate($request->get('per_page', 15));
+        });
 
         return response()->json($passengers);
     }
@@ -63,5 +70,29 @@ class PassengerController extends Controller
     {
         $passenger->delete();
         return response()->json(null, 204);
+    }
+
+    // POST /api/passengers/{id}/image
+    public function uploadImage(Request $request, Passenger $passenger)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            // Save original image to local storage folder: storage/app/passengers
+            $path = $request->file('image')->store('passengers', 'local');
+
+            // Save the file path to the database
+            $passenger->image = $path;
+            $passenger->save();
+
+            return response()->json([
+                'message' => 'Image uploaded successfully',
+                'path' => $path
+            ]);
+        }
+
+        return response()->json(['message' => 'No image provided'], 400);
     }
 }

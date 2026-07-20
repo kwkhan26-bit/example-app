@@ -11,7 +11,7 @@ class PassengerSeeder extends Seeder
     public function run(): void
     {
         // Create all 1000 passengers at once
-        Passenger::factory()->count(1000)->create();
+        Passenger::factory()->count(100)->create();
 
         // Get all flight IDs once
         $flightIds = Flight::pluck('id')->toArray();

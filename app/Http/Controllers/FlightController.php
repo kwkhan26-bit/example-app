@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Flight;
-use App\Models\Passenger;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -34,7 +33,7 @@ class FlightController extends Controller
             'departure_city' => 'required|string|max:255',
             'arrival_city'   => 'required|string|max:255',
             'departure_time' => 'required|date',
-            'arrival_time'   => 'required|date',
+            'arrival_time'   => 'required|date|after:departure_time', // Updated validation
         ]);
 
         $flight = Flight::create($data);
@@ -49,7 +48,7 @@ class FlightController extends Controller
             'departure_city' => 'string|max:255',
             'arrival_city'   => 'string|max:255',
             'departure_time' => 'date',
-            'arrival_time'   => 'date',
+            'arrival_time'   => 'date|after:departure_time', // Updated validation
         ]);
 
         $flight->update($data);
@@ -60,28 +59,6 @@ class FlightController extends Controller
     public function destroy(Flight $flight)
     {
         $flight->delete();
-        return response()->json(null, 204);
-    }
-
-    // POST /api/flights/{id}/assign
-    public function assign(Request $request, Flight $flight)
-    {
-        $request->validate([
-            'passenger_id' => 'required|exists:passengers,id',
-        ]);
-
-        $flight->passengers()->syncWithoutDetaching([$request->passenger_id]);
-        return response()->json(['message' => 'Passenger assigned to flight']);
-    }
-
-    // DELETE /api/flights/{id}/unassign
-    public function unassign(Request $request, Flight $flight)
-    {
-        $request->validate([
-            'passenger_id' => 'required|exists:passengers,id',
-        ]);
-
-        $flight->passengers()->detach($request->passenger_id);
         return response()->json(null, 204);
     }
 }
