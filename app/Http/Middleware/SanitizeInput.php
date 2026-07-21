@@ -12,10 +12,14 @@ class SanitizeInput
     {
         $input = $request->all();
 
-        array_walk_recursive($input, function (&$value) {
-            if (is_string($value)) {
+        // Notice we added $key here so we can check the name of the input
+        array_walk_recursive($input, function (&$value, $key) {
+            
+            // If it's a string AND the field name is NOT 'password' or 'password_confirmation'
+            if (is_string($value) && !in_array(strtolower($key), ['password', 'password_confirmation'])) {
                 $value = strip_tags($value);
             }
+            
         });
 
         $request->merge($input);
